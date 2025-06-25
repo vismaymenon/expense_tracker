@@ -70,6 +70,7 @@ class AddExpenseWindow(ctk.CTkToplevel):
 class ExpensesListFrame(ctk.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
+        self.configure(border_width=3, border_color='steelblue2')
         #Row Configuration
         self.grid_rowconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=1)

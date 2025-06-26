@@ -11,13 +11,15 @@ class ExpenseTrackerApp(ctk.CTk):
     def __init__(self):
         super().__init__()
         self.title('Expense Tracker')
-        self.geometry('800x600')
+        self.geometry('1200x800')
         self.data_manager = DataManager()
         #Column configuration
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
         self.grid_columnconfigure(2, weight=1)
-
+        #row configuration
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_rowconfigure(1, weight=10)
         # -------------------Courtesy of Gemini-------------------------------------------------
         # --- THE FIX FOR THE MAIN WINDOW MACOS FOCUS ISSUE ---
         # These lines ensure the main window itself gets proper initial focus
@@ -35,27 +37,15 @@ class ExpenseTrackerApp(ctk.CTk):
         # Row configuration
         self.grid_rowconfigure(0, weight=1)
 
-        # coulmn 0
+        # Column 0
         self.column0_frame = ExpensesListFrame(self, data_manager = self.data_manager)
-        self.column0_frame.grid(row=0, column=0, sticky='nsew', padx=10, pady=10)
-
+        self.column0_frame.grid(row=0, column=0, sticky='nsew', padx=10, pady=10, rowspan=2)
 
         # Column 1
-        ## Add Expense Button
-        self.add_expense_button = ctk.CTkButton(self, text='Add Expense', command=self.open_add_expense, width=80, height=28)
-        self.add_expense_button.grid(row=0, column=1, padx=10, pady=(10,0), sticky='nw')
-        self.add_expense_window = None
+        # Frame for pie chart data analysis
+        self.pie_chart_frame = ctk.CTkFrame(self, fg_color='red')
+        self.pie_chart_frame.grid(row=1, column=1, sticky='nsew', padx=10, pady=(10, 10))
 
-    def open_add_expense(self):
-        if self.add_expense_window is None or not self.add_expense_window.winfo_exists():
-            self.add_expense_window = AddExpenseWindow(self)
-            self.add_expense_window.transient(self)
-        else:
-            self.add_expense_window.lift()
-            self.add_expense_window.focus_force()
-    def expense_added(self):
-        """This function will be called to refresh the list"""
-        self.column0_frame.populate_expenses()
 
 if __name__ == "__main__":
     app = ExpenseTrackerApp()

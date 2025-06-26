@@ -15,7 +15,10 @@ class DataManager:
     def add_entry(self,entry_date, entry_type, category, description, amount):
         # Basic validation
         try:
-            amount_float = float(amount)
+            if entry_type == 'Expense':
+                amount_float = -float(amount)
+            else:
+                amount_float = float(amount)
         except ValueError:
             print("Error: Amount must be a number.")
             return

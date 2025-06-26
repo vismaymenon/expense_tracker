@@ -12,7 +12,7 @@ class DataManager:
                 writer = csv.DictWriter(csvfile, fieldnames=self.fieldnames)
                 writer.writeheader()
 
-    def add_entry(self, entry_type, category, description, amount):
+    def add_entry(self,entry_date, entry_type, category, description, amount):
         # Basic validation
         try:
             amount_float = float(amount)
@@ -23,7 +23,7 @@ class DataManager:
         with open(self.filename, 'a', newline='') as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=self.fieldnames)
             writer.writerow({
-                'date': datetime.now().strftime('%Y-%m-%d'),
+                'date': datetime.strptime(entry_date, '%Y-%m-%d').strftime('%Y-%m-%d'),
                 'type': entry_type,
                 'category': category,
                 'description': description,

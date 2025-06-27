@@ -1,6 +1,7 @@
 import datetime
 import tkinter as tk
 import customtkinter as ctk
+from ui.view_frame import ViewFrame
 
 class AddExpenseWindow(ctk.CTkToplevel):
     def __init__(self,master, *args, **kwargs):
@@ -71,3 +72,7 @@ class AddExpenseWindow(ctk.CTkToplevel):
         if self.master_app and self.master_app.winfo_exists():
             self.master_app.focus_force()
         self.after(10, self.destroy)  # Ensure the window is destroyed after a short delay
+
+    def expense_added(self):
+        """This function will be called to refresh the list"""
+        ViewFrame.populate_expenses()

@@ -75,4 +75,4 @@ class AddExpenseWindow(ctk.CTkToplevel):
 
     def expense_added(self):
         """This function will be called to refresh the list"""
-        ViewFrame.populate_expenses()
+        ViewFrame.populate_all_tabs()

@@ -1,49 +1,3 @@
-# import customtkinter as ctk
-# from tkinter import ttk
-# from data.data_manager import DataManager
-#
-# class ViewFrame(ctk.CTkTabview):
-#     def __init__(self, master, options, data_manager):
-#         super().__init__(master)
-#         for i in range(len(options)):
-#             self.add(options[i])
-#         self.data_manager = data_manager
-#
-#
-#         #Expenses List_Daily
-#         self.scrollable_frame = ctk.CTkScrollableFrame(self.tab('Daily'), label_text="Transactions")
-#         self.scrollable_frame.pack(fill='both', expand=True, padx=10, pady=10)
-#         # Populate the list on startup
-#         self.populate_expenses()
-#
-#         # # Column 1
-#         # # Frame for pie chart data analysis
-#         # self.pie_chart_frame = ctk.CTkFrame(self.scrollable_frame, fg_color='red')
-#         # self.pie_chart_frame.grid(row=0, column=1, sticky='nsew', padx=10, pady=(10, 10))
-#
-#     def populate_expenses(self):
-#         # Clear any existing widgets
-#         for widget in self.scrollable_frame.winfo_children():
-#             widget.destroy()
-#
-#         entries = self.data_manager.get_all_entries()
-#         # Display in reverse order (newest first)
-#         for i, entry in enumerate(reversed(entries)):
-#             entry_frame = ctk.CTkFrame(self.scrollable_frame)
-#             entry_frame.grid(row = 0, column = 0, sticky='nsew', padx=10, pady=(5, 5))
-#
-#             # Determine color based on type
-#             amount_color = "light green" if entry['type'] == 'Income' else "light coral"
-#             if entry['description']:
-#                 label_text = f"{entry['date']}: {entry['category']} ({entry['description']})"
-#             else:
-#                 label_text = f"{entry['date']}: {entry['category']}"
-#             amount_text = f"${float(entry['amount']):.2f}"
-#
-#             ctk.CTkLabel(entry_frame, text=label_text).pack(side='left', padx=10)
-#             ctk.CTkLabel(entry_frame, text=amount_text, text_color=amount_color).pack(side='right', padx=10)
-
-
 import customtkinter as ctk
 import pandas as pd
 from matplotlib.figure import Figure
@@ -90,7 +44,7 @@ class ExpenseGroupFrame(ctk.CTkFrame):
         for i, row in enumerate(self.group_df.iterrows()):
             entry = row[1]
             # Alternating row colors
-            row_color = "transparent" if i % 2 == 0 else ALT_ROW_COLOR
+            row_color = "transparent" if i % 2 == 0 else BG_COLOR
 
             row_frame = ctk.CTkFrame(list_frame, fg_color=row_color)
             row_frame.pack(fill="x", pady=1)
@@ -104,7 +58,7 @@ class ExpenseGroupFrame(ctk.CTkFrame):
             label.pack(side="left", fill="x", expand=True, padx=5, pady=2)
 
             # Amount
-            amount_color = INCOME_COLOR if entry['type'] == 'Income' else TEXT_COLOR
+            amount_color = INCOME_COLOR if entry['type'] == 'Income' else EXPENSE_COLOR
             amount_text = f"${abs(entry['amount']):,.2f}"
             amount_label = ctk.CTkLabel(row_frame, text=amount_text, text_color=amount_color, anchor="e", width=100)
             amount_label.pack(side="right", padx=5, pady=2)
@@ -112,32 +66,42 @@ class ExpenseGroupFrame(ctk.CTkFrame):
     def create_analysis_section(self):
         analysis_frame = ctk.CTkFrame(self, fg_color="transparent")
         analysis_frame.grid(row=1, column=1, sticky="nsew", padx=10)
-        analysis_frame.grid_rowconfigure(0, weight=1)  # Pie chart takes up space
-        analysis_frame.grid_rowconfigure(1, weight=0)  # Net flow is fixed size
+        analysis_frame.grid_rowconfigure(0, weight=1)
+        analysis_frame.grid_rowconfigure(1, weight=1)
+        analysis_frame.grid_rowconfigure(2, weight=0)
 
-        # --- Pie Chart ---
+        def create_pie_chart(parent, data_df, label):
+            if not data_df.empty:
+                category_summary = data_df.groupby('category')['amount'].sum().abs()
+                fig = Figure(figsize=(3, 3), dpi=100)
+                fig.patch.set_facecolor(ALT_ROW_COLOR)
+                ax = fig.add_subplot(111)
+                ax.pie(
+                    category_summary,
+                    labels=category_summary.index,
+                    autopct='%1.1f%%',
+                    startangle=90,
+                    textprops={'color': TEXT_COLOR}
+                )
+                ax.axis('equal')
+                fig.tight_layout()
+                canvas = FigureCanvasTkAgg(fig, master=parent)
+                canvas.draw()
+                canvas.get_tk_widget().pack(side="top", fill="both", expand=True)
+            else:
+                no_data_label = ctk.CTkLabel(parent, text=f"No {label} to display", text_color="gray")
+                no_data_label.pack(expand=True, padx=5, pady=5)
+
         expenses_only_df = self.group_df[self.group_df['type'] == 'Expense'].copy()
+        income_only_df = self.group_df[self.group_df['type'] == 'Income'].copy()
 
-        fig_frame = ctk.CTkFrame(analysis_frame, fg_color="transparent")
-        fig_frame.grid(row=0, column=0, sticky="nsew")
+        income_frame = ctk.CTkFrame(analysis_frame, fg_color="transparent")
+        income_frame.grid(row=0, column=0, sticky="nsew")
+        expense_frame = ctk.CTkFrame(analysis_frame, fg_color="transparent")
+        expense_frame.grid(row=1, column=0, sticky="nsew")
 
-        if not expenses_only_df.empty:
-            category_summary = expenses_only_df.groupby('category')['amount'].sum().abs()
-
-            fig = Figure(figsize=(5, 4), dpi=100)
-            fig.patch.set_facecolor(BG_COLOR)  # Match background
-            ax = fig.add_subplot(111)
-            ax.pie(category_summary, labels=category_summary.index, autopct='%1.1f%%',
-                   startangle=90, textprops={'color': TEXT_COLOR})
-            ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
-            fig.tight_layout()
-
-            canvas = FigureCanvasTkAgg(fig, master=fig_frame)
-            canvas.draw()
-            canvas.get_tk_widget().pack(side="top", fill="both", expand=True)
-        else:
-            no_data_label = ctk.CTkLabel(fig_frame, text="No expenses to display", text_color="gray")
-            no_data_label.pack(expand=True, padx=5, pady=5)
+        create_pie_chart(income_frame, income_only_df, "incomes")
+        create_pie_chart(expense_frame, expenses_only_df, "expenses")
 
         # --- Net Flow ---
         net_flow = self.group_df['amount'].sum()
@@ -146,7 +110,7 @@ class ExpenseGroupFrame(ctk.CTkFrame):
 
         net_flow_label = ctk.CTkLabel(analysis_frame, text=net_flow_text, text_color=net_flow_color,
                                       font=ctk.CTkFont(size=14, weight="bold"))
-        net_flow_label.grid(row=1, column=0, sticky="ew", pady=(10, 5))
+        net_flow_label.grid(row=2, column=0, sticky="ew", pady=(10, 5))
 
 
 class ViewFrame(ctk.CTkTabview):
@@ -159,15 +123,14 @@ class ViewFrame(ctk.CTkTabview):
         for option in options:
             self.add(option)
             # Create a scrollable frame inside each tab
-            scroll_frame = ctk.CTkScrollableFrame(self.tab(option), label_text=f"{option} View")
+            scroll_frame = ctk.CTkScrollableFrame(master = self.tab(option), label_text=f"{option} View")
             scroll_frame.pack(fill="both", expand=True, padx=5, pady=5)
-
-        self.populate_all_tabs()
+            self.populate_all_tabs(scroll_frame)
 
         # Bind the tab change event to refresh data
         self.configure(command=self.populate_all_tabs)
 
-    def populate_all_tabs(self):
+    def populate_all_tabs(self, scroll_frame):
         """Populates the currently selected tab with grouped data."""
         selected_tab_name = self.get()
 
@@ -179,10 +142,6 @@ class ViewFrame(ctk.CTkTabview):
 
         period_code = period_map[selected_tab_name]
         grouped_entries = self.data_manager.get_grouped_entries(period_code)
-
-        # Get the correct scrollable frame for the current tab
-        tab_frame = self.tab(selected_tab_name)
-        scroll_frame = tab_frame.winfo_children()[0]  # Assumes scroll frame is the only child
 
         # Clear previous content
         for widget in scroll_frame.winfo_children():

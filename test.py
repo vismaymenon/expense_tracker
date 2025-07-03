@@ -1,34 +1,23 @@
-import tkinter as tk
+import customtkinter as ctk
 
-root = tk.Tk()
-root.title("Grid Splitting Example")
+app = ctk.CTk()
+app.geometry("500x400")
 
-# Create some widgets for the initial grid
-label1 = tk.Label(root, text="Label 1", borderwidth=2, relief="solid")
-label2 = tk.Label(root, text="Label 2", borderwidth=2, relief="solid")
-button1 = tk.Button(root, text="Button 1", borderwidth=2, relief="solid")
-button2 = tk.Button(root, text="Button 2", borderwidth=2, relief="solid")
+tabview = ctk.CTkTabview(master=app)
+tabview.pack(padx=20, pady=20)
 
-# Place them in the grid
-label1.grid(row=0, column=0)
-label2.grid(row=0, column=1)
-button1.grid(row=1, column=0)
-button2.grid(row=1, column=1)
+tabview.add("Tab 1")
+tabview.add("Tab 2")
 
-# Function to split the cell at row 0, column 0
-def split_cell():
-    label1.grid_remove()
+scrollable_frame_1 = ctk.CTkScrollableFrame(master=tabview.tab("Tab 1"), label_text="Scrollable Frame in Tab 1")
+scrollable_frame_1.pack(padx=10, pady=10)
 
-    # Create new labels for the split cell
-    new_label1 = tk.Label(root, text="New Label 1", borderwidth=2, relief="solid")
-    new_label2 = tk.Label(root, text="New Label 2", borderwidth=2, relief="solid")
+scrollable_frame_2 = ctk.CTkScrollableFrame(master=tabview.tab("Tab 2"), label_text="Scrollable Frame in Tab 2")
+scrollable_frame_2.pack(padx=10, pady=10)
 
-    # Place the new labels in the split cell area
-    new_label1.grid(row=0, column=0, padx=5, pady=5)
-    new_label2.grid(row=0, column=1, padx=5, pady=5)
 
-# Create a button to trigger the split
-split_button = tk.Button(root, text="Split Cell", command=split_cell)
-split_button.grid(row=2, column=0, columnspan=2)  # Span across both columns
+for i in range(20):
+    ctk.CTkButton(master=scrollable_frame_1, text=f"Button {i+1}").pack(pady=5)
+    ctk.CTkButton(master=scrollable_frame_2, text=f"Button {i+1}").pack(pady=5)
 
-root.mainloop()
+app.mainloop()

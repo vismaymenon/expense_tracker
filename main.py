@@ -1,7 +1,7 @@
 import customtkinter as ctk
 import tkinter as tk
-from ui.add_expense_window import AddExpenseWindow
 from ui.expenses_list_frame import ExpensesListFrame
+from ui.news_frame import NewsFrame
 from data.data_manager import DataManager
 
 ctk.set_appearance_mode('System')
@@ -37,7 +37,11 @@ class ExpenseTrackerApp(ctk.CTk):
 
         # Column 0
         self.column0_frame = ExpensesListFrame(self, data_manager = self.data_manager)
-        self.column0_frame.grid(row=0, column=0, sticky='nsew', padx=10, pady=10)
+        self.column0_frame.grid(row=0, column=0, sticky='nsew', padx=5, pady=10)
+
+        # Column 1
+        self.column1_frame = NewsFrame(self)
+        self.column1_frame.grid(row=0, column=1, sticky='nsew', padx=5, pady=10)
 
 
 if __name__ == "__main__":

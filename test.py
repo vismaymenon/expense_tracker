@@ -20,4 +20,6 @@ for i in range(20):
     ctk.CTkButton(master=scrollable_frame_1, text=f"Button {i+1}").pack(pady=5)
     ctk.CTkButton(master=scrollable_frame_2, text=f"Button {i+1}").pack(pady=5)
 
+
+print(tabview.tab("Tab 1").winfo_children()[0].winfo_children()[0].winfo_children())
 app.mainloop()
